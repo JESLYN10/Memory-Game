@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory game</title>
+    <style>
+        h1{
+            font-family:Segoe Script;
+            color:black;
+            font-size:40px;
+        }
+   body{
+    justify-content:center;
+    align-items:center;
+    background-image: url('https://i.pinimg.com/originals/c1/a7/78/c1a778f8a9fd1ef0ca835b4f360e9156.gif');
+     background-size: cover; 
+      background-repeat: no-repeat; 
+      background-position: center;
+}
+    .gameboard{
+        height:fit-content;
+        width:fit-content;
+        display:grid;
+        grid-template-columns: repeat(4,200px);
+    
+        align-items:center;
+        margin-left:350px;
+        margin-top:10px;
+        margin-bottom:50px;
+    }
+    .cards{
+        height:120px;
+        width:120px;
+        background-color:white;
+        display:flex;
+        align-items: center;
+        cursor:pointer;
+        justify-content:center;
+        border-radius :55px;
+        margin-top:15px;
+        margin-left:50px;
+        font-family: Segoe Script;
+        color:black;
+        font-size: x-large;
+        border:10px solid rgb(78, 59, 36);
+    }
+    .cards img{
+        display:none;
+        height:100%;
+        weight:100%;
+        border:10px solid rgb(78, 59, 36);
+        border-radius :55px;
+    }
+    .flipped img{
+        display:block;
+    }
+    .flipped{
+       
+        border:10px solid whitesmoke ;
+        border-radius :55px;
+    }
+    #timer{
+        font-size: 40px;
+        position: fixed;
+            top: 10px;  
+            right:10px;  
+    }
+    </style>
+</head>
+<body>  <div id="timer">00:00</div>
+    <h1 style="text-align: center">
+  <b> Memory Game </b>
+    </h1>
+    <div id="gameboard" class="gameboard" ></div>
+    <script>
+        //setting values
+        const gameboard=document.getElementById("gameboard");
+        const cardimages=[ "https://i.pinimg.com/736x/4e/e1/f3/4ee1f3c06a1b47031e4861b7f4ca61ce.jpg","https://i.pinimg.com/736x/fa/29/db/fa29dbcbac52924ec397e8e42db029ed.jpg","https://i.pinimg.com/736x/dd/b1/34/ddb134f86ad5ff3bf163d6bcda6e5654.jpg","https://i.pinimg.com/736x/5f/e7/79/5fe779dc4347d9f2e87fd1f163cf126f.jpg","https://i.pinimg.com/736x/b9/c5/76/b9c5768543f1f0d561cc949608145471.jpg","https://i.pinimg.com/736x/76/7e/a1/767ea1a12facc87fe4a840a079978302.jpg","https://i.pinimg.com/736x/4e/67/71/4e6771c869963202e4941edcec35e51b.jpg","https://i.pinimg.com/736x/b1/94/42/b1944205452760b469de481cadce6651.jpg","https://i.pinimg.com/736x/4e/e1/f3/4ee1f3c06a1b47031e4861b7f4ca61ce.jpg","https://i.pinimg.com/736x/fa/29/db/fa29dbcbac52924ec397e8e42db029ed.jpg","https://i.pinimg.com/736x/dd/b1/34/ddb134f86ad5ff3bf163d6bcda6e5654.jpg","https://i.pinimg.com/736x/5f/e7/79/5fe779dc4347d9f2e87fd1f163cf126f.jpg","https://i.pinimg.com/736x/b9/c5/76/b9c5768543f1f0d561cc949608145471.jpg","https://i.pinimg.com/736x/76/7e/a1/767ea1a12facc87fe4a840a079978302.jpg","https://i.pinimg.com/736x/4e/67/71/4e6771c869963202e4941edcec35e51b.jpg","https://i.pinimg.com/736x/b1/94/42/b1944205452760b469de481cadce6651.jpg"];
+        const shufflecards=cardimages.sort(()=>Math.random()-0.5);
+        let firstcard=null;
+        let secondcard=null;
+        let gamecompletion=0;
+        let sttime=0;
+        //creating cards
+        shufflecards.forEach(imagesrc=>{
+        const cards=document.createElement("div");
+        cards.classList.add("cards");
+        cards.dataset.image=imagesrc;
+        const img=document.createElement("img");
+        img.src=imagesrc;
+        cards.appendChild(img);
+        cards.addEventListener("click",()=>{handleclick(cards);});
+        gameboard.appendChild(cards);
+     }
+     );
+     //handling click
+    function handleclick(cards) {sttime++;
+        if(sttime===1)
+    {  startTime();}
+        if(cards.classList.contains("flipped")||secondcard) return;
+       cards.classList.add("flipped");
+       if(!firstcard)
+       firstcard=cards;
+    else{
+        secondcard=cards;
+        matching();
+    }
+     }
+     //matching
+     function matching(){
+        if(firstcard.dataset.image===secondcard.dataset.image){
+            gamecompletion++;
+            firstcard=null;
+        secondcard=null;
+            complete();
+        }
+        else{
+            setTimeout(()=>{
+                firstcard.classList.remove("flipped");
+                secondcard.classList.remove("flipped");
+                firstcard=null;
+                secondcard=null;
+            },2000);
+        }
+    }
+    //alert msg
+     function complete(){
+        if((gamecompletion*2)==cardimages.length){
+        setTimeout(()=>{
+            pauseTime();
+            alert(`Congratulations!You won the game with ${sttime} moves`);
+        },500);
+     }
+    }
+    //timer
+    let timer=document.getElementById("timer");
+    let start;
+    let seconds=0;
+    let minutes=0;
+    let timerInterval;
+    function updateTimer(){
+        seconds++;
+        if(seconds===60){
+            seconds=0;
+        minutes++;
+    }
+        timer.textContent=((minutes<10)?"0":'')+minutes+":"+((seconds<10)?"0":'')+seconds;
+    }
+    function startTime(){
+        timerInterval=setInterval(updateTimer,1000);
+    }
+    function pauseTime(){
+        clearInterval(timerInterval);
+    }
+        </script>
+</body>
+</html>
